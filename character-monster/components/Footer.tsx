@@ -25,7 +25,7 @@ const Footer = () => {
             </div>
           )}
           <div className="flex justify-center items-center vibrating-element">
-            <Link href="https://github.com/turnercore/clocktower">
+            <Link href="https://github.com/turnercore/character-monster">
               <ThemeAwareSocialIcon
                 iconDark={darkGithub}
                 iconLight={lightGithub}
