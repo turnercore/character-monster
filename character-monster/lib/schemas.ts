@@ -41,3 +41,73 @@ export const ColorPaletteSchema = z.record(z.array(UUIDSchema)).refine(
   }
 )
 export type ColorPaletteType = z.infer<typeof ColorPaletteSchema>
+
+// API Key Schema and Type
+//     id uuid not null default gen_random_uuid (),
+//     user_id uuid not null,
+
+export const APIKeySchema = z.object({
+  id: UUIDSchema,
+  user_id: UUIDSchema,
+})
+
+export type APIKey = z.infer<typeof APIKeySchema>
+
+// Third party API Key Schema and Type
+// id uuid not null default auth.uid (),
+// api_key text not null,
+// owner uuid not null,
+// type public.third_party_key_types not null default 'open_ai'::third_party_key_types,
+// endpoint text not null
+
+export const ThirdPartyAPIKeySchema = z.object({
+  id: UUIDSchema,
+  api_key: z.string(),
+  owner: UUIDSchema,
+  type: z.enum(['open_ai', 'elevenlabs']),
+  endpoint: z.string(),
+})
+
+export type ThirdPartyAPIKey = z.infer<typeof ThirdPartyAPIKeySchema>
+
+// Blurb Schema and Type
+// id uuid not null default uuid_generate_v4 (),
+// name text null,
+// content text null,
+// owner uuid not null,
+
+export const BlurbSchema = z.object({
+  id: UUIDSchema,
+  name: z.string().nullable(),
+  content: z.string().nullable(),
+  owner: UUIDSchema,
+})
+
+export type Blurb = z.infer<typeof BlurbSchema>
+
+// Character Schema and Type
+// name text null,
+// description text null,
+// identity text null,
+// voice text null,
+// archived boolean not null default false,
+// history text null,
+// id uuid not null default gen_random_uuid (),
+// knowledge uuid[] null,
+// users uuid[] null,
+// owner uuid not null,
+
+export const CharacterSchema = z.object({
+  id: UUIDSchema,
+  name: z.string().nullable(),
+  description: z.string().nullable(),
+  identity: z.string().nullable(),
+  voice: z.string().nullable(),
+  archived: z.boolean().default(false),
+  history: z.string().nullable(),
+  knowledge: z.array(UUIDSchema).nullable(),
+  users: z.array(UUIDSchema).nullable(),
+  owner: UUIDSchema,
+})
+
+export type Character = z.infer<typeof CharacterSchema>
