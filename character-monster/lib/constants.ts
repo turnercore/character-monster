@@ -5,9 +5,11 @@ const projectName = 'character-monster'
 const projectPrefix = 'cm'
 
 // See if database is shared
-const isSharedDb = process.env.SHARED_DB ? process.env.SHARED_DB : false
-const hasSharedProfiles = process.env.SHARED_PROFILES
-  ? process.env.SHARED_PROFILES
+const isSharedDb = process.env.NEXT_PUBLIC_SHARED_DB
+  ? process.env.NEXT_PUBLIC_SHARED_DB
+  : false
+const hasSharedProfiles = process.env.NEXT_PUBLIC_SHARED_PROFILES
+  ? process.env.NEXT_PUBLIC_SHARED_PROFILES
   : true
 
 // Tables in DB (if in a shared db then they will be prefixed automatically)

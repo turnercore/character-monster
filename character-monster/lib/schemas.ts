@@ -58,14 +58,13 @@ export type APIKey = z.infer<typeof APIKeySchema>
 // api_key text not null,
 // owner uuid not null,
 // type public.third_party_key_types not null default 'open_ai'::third_party_key_types,
-// endpoint text not null
+// endpoint text
 
 export const ThirdPartyAPIKeySchema = z.object({
-  id: UUIDSchema,
   api_key: z.string(),
   owner: UUIDSchema,
   type: z.enum(['open_ai', 'elevenlabs']),
-  endpoint: z.string(),
+  endpoint: z.string().nullable(),
 })
 
 export type ThirdPartyAPIKey = z.infer<typeof ThirdPartyAPIKeySchema>

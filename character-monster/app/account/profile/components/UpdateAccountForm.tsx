@@ -51,6 +51,8 @@ import hash from '@/lib/tools/hash'
 import updateUserAvatarSetSA from '../actions/updateUserAvatarSet'
 import { BsTrash3Fill } from 'react-icons/bs'
 import { DialogClose } from '@radix-ui/react-dialog'
+import upsertElevenlabsApiKeySA from '@/actions/upsertElevenlabsApiKeySA'
+import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
 // validation schema for form
 const formSchema = z
   .object({
@@ -158,7 +160,30 @@ const UpdateAccountForm = ({
   const [currentUsername, setCurrentUsername] = useState(profile.username)
   const [currentColor, setCurrentColor] = useState(profile.color)
   const [avatarSet, setAvatarSet] = useState(profile.avatar_set || 1)
+  const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string>('')
   const supabase = createClient()
+
+  // Get current elevenlabsApiKey if it exists
+  useEffect(() => {
+    if (!userId) return
+    async function getElevenlabsApiKey() {
+      const { data, error } = await supabase
+        .from(THIRD_PARTY_KEYS_TABLE)
+        .select('*')
+        .match({ owner: userId, type: 'elevenlabs' })
+
+      if (error) {
+        console.error(error)
+        toast.error(extractErrorMessage(error, 'Error getting labs api key'))
+        return
+      }
+
+      if (data && data.length > 0) {
+        setElevenlabsApiKey(data[0].api_key)
+      }
+    }
+    getElevenlabsApiKey()
+  }, [userId])
 
   useEffect(() => {
     async function getUserFromSession() {
@@ -313,12 +338,30 @@ const UpdateAccountForm = ({
     setAvatarSet(avatarSetNumber)
 
     // Update the server
-    const { data, error } = await updateUserAvatarSetSA(avatarSetNumber, userId)
+    const { error } = await updateUserAvatarSetSA(avatarSetNumber, userId)
     if (error) {
       console.error(error)
       toast.error(extractErrorMessage(error, "Can't update user avatar set"))
       // Revert local state
       setAvatarSet(oldAvatarIndex)
+    }
+  }
+
+  const handleUpdateLabsApiKey = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const apiKey = event.target.value
+    if (!apiKey) return
+    if (apiKey === elevenlabsApiKey) return
+    if (apiKey.length !== 32) {
+      toast.error('Api Key must be 32 characters.')
+      return
+    }
+    const { error } = await upsertElevenlabsApiKeySA(apiKey)
+    if (error) {
+      toast.error(extractErrorMessage(error, "Can't update user labs api key"))
+    } else {
+      toast.message('Your labs api key has been updated.')
     }
   }
 
@@ -557,6 +600,17 @@ const UpdateAccountForm = ({
             </div>
           </form>
         </Form>
+
+        {/* ElevenLabs Api Key, placeholder TODO: Make API Key form */}
+
+        <div className="flex flex-row">
+          <Label>ElevenLabs Api Key</Label>
+          <Input
+            type="text"
+            placeholder={elevenlabsApiKey}
+            onBlur={handleUpdateLabsApiKey}
+          />
+        </div>
       </CardContent>
     </Card>
   )
