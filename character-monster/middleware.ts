@@ -5,11 +5,15 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import extractErrorMessage from './lib/tools/extractErrorMessage'
 import { APIKey } from './lib/schemas'
 
-const protectedRoutes = ['/testing']
+const protectedRoutes = ['/testing', '/character', '/auth/account/profile']
 const apiKeysTable = API_KEYS_TABLE || 'api_keys' // Adjust as per your table name
 
 export const config = {
-  matcher: ['/testing/:path*'],
+  matcher: [
+    '/testing/:path*',
+    '/character/:path*',
+    '/auth/account/profile/:path*',
+  ],
 }
 
 function isProtectedRoute(pathname: string): boolean {

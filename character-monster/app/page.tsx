@@ -14,10 +14,13 @@ const HomePage = () => {
         </p>
         <div className="space-x-4">
           <Button variant="outline" asChild>
-            <Link href="/create-npc">Create NPC</Link>
+            <Link href="/character/create">Create NPC</Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button disabled={true} variant="outline" asChild>
             <Link href="/discord-bot">Discord Bot</Link>
+          </Button>
+          <Button disabled={false} variant="outline" asChild>
+            <Link href="/testing/text-to-speech">Text to Speech</Link>
           </Button>
         </div>
         <div className="mt-10">
