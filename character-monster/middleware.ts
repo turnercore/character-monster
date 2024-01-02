@@ -70,7 +70,7 @@ export async function middleware(req: NextRequest) {
         if (jwt) {
           // Log the user's use of the jwt with timestamp, we don't need to await this
           supabase.rpc('log_api_use', {
-            api_key: monsterToken,
+            id: monsterToken,
             table: API_KEYS_TABLE,
           })
           // Create new headers to add our jwt to the headers for the next function
