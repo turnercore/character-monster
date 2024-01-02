@@ -25,7 +25,6 @@ export default function RootLayout({
       <body className="bg-background text-foreground">
         <Header />
         <main className="min-h-screen flex flex-col items-center">
-          <AuthButton />
           {children}
         </main>
         <Footer />

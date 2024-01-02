@@ -17,7 +17,7 @@ function isProtectedRoute(pathname: string): boolean {
 
 function handleUnauthenticatedClient(request: NextRequest): NextResponse {
   const url = request.nextUrl.clone()
-  url.pathname = '/login'
+  url.pathname = '/account/login'
   return NextResponse.rewrite(url)
 }
 
