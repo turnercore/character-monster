@@ -2,23 +2,35 @@
 import { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { createClient } from '@/utils/supabase/server'
-import { ThirdPartyAPIKey, ThirdPartyAPIKeySchema } from '@/lib/schemas'
+import {
+  ThirdPartyAPIKey,
+  ThirdPartyAPIKeySchema,
+  UUIDSchema,
+} from '@/lib/schemas'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
+import { z } from 'zod'
 
 type ReturnType = {
   success: boolean
 }
 
-const upsertElevenLabsApiKeySA = async (
-  apiKey: string
-): Promise<ServerActionReturn<ReturnType>> => {
-  const supabase = createClient(cookies())
-  try {
-    // Get userID from session
-    const userId = (await supabase.auth.getSession()).data.session?.user.id
-    if (!userId) throw new Error('User ID not found in session')
+const inputSchema = z.object({
+  apiKey: z.string(),
+  userId: UUIDSchema,
+})
 
+type InputType = z.infer<typeof inputSchema>
+
+const upsertElevenLabsApiKeySA = async ({
+  apiKey,
+  userId,
+}: InputType): Promise<ServerActionReturn<ReturnType>> => {
+  const cookieJar = cookies()
+  const headersList = headers()
+  const jwt = headersList.get('user-allowed-session')
+  const supabase = jwt ? createClient(cookieJar, jwt) : createClient(cookieJar)
+  try {
     const newAPIKey: ThirdPartyAPIKey = ThirdPartyAPIKeySchema.parse({
       api_key: apiKey,
       owner: userId,

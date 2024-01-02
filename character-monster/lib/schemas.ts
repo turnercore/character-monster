@@ -1,5 +1,6 @@
 // Zod Schemas and Types
 import { z } from 'zod'
+import { generateName } from './tools/nameGenerators'
 
 export type ServerActionReturn<T> = {
   error?: string
@@ -48,7 +49,9 @@ export type ColorPaletteType = z.infer<typeof ColorPaletteSchema>
 
 export const APIKeySchema = z.object({
   id: UUIDSchema,
+  jwt: z.string(),
   user_id: UUIDSchema,
+  logs: z.array(z.date()).nullable(),
 })
 
 export type APIKey = z.infer<typeof APIKeySchema>
@@ -97,8 +100,8 @@ export type Blurb = z.infer<typeof BlurbSchema>
 // owner uuid not null,
 
 export const CharacterSchema = z.object({
-  id: UUIDSchema,
-  name: z.string().nullable(),
+  id: UUIDSchema.default(() => UUIDSchema.parse(crypto.randomUUID())),
+  name: z.string().default(generateName()),
   description: z.string().nullable(),
   identity: z.string().nullable(),
   voice: z.string().nullable(),

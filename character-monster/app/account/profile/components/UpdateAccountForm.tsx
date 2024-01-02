@@ -39,7 +39,7 @@ import {
 } from '@/components/ui'
 import { toast } from 'sonner'
 import { SwatchesPicker } from '@/components/ui/color-picker'
-import { type Profile } from '@/lib/schemas'
+import { UUID, type Profile } from '@/lib/schemas'
 import updateUserDataSA from '../actions/updateUserData'
 import deleteUserAccount from '../actions/deleteUserAccount'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
@@ -155,13 +155,24 @@ const UpdateAccountForm = ({
   email: string
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(true)
-  const [userId, setUserId] = useState('')
+  const [userId, setUserId] = useState<UUID>('')
   const [userEmail, setUserEmail] = useState(email)
   const [currentUsername, setCurrentUsername] = useState(profile.username)
   const [currentColor, setCurrentColor] = useState(profile.color)
   const [avatarSet, setAvatarSet] = useState(profile.avatar_set || 1)
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string>('')
   const supabase = createClient()
+
+  // async function to get userId
+  const getUserId = async () => {
+    // Get userID from session
+    const fetchedId = (await supabase.auth.getSession()).data.session?.user.id
+    if (!fetchedId) {
+      Router.push('/login')
+    }
+    setUserId(fetchedId as UUID)
+    return fetchedId
+  }
 
   // Get current elevenlabsApiKey if it exists
   useEffect(() => {
@@ -186,24 +197,10 @@ const UpdateAccountForm = ({
   }, [userId])
 
   useEffect(() => {
-    async function getUserFromSession() {
-      const { data, error } = await supabase.auth.getSession()
-      if (error) {
-        console.error(error)
-        Router.push('/login')
-      }
-      const userId = data?.session?.user.id
-      if (!userId || typeof userId === 'undefined') {
-        Router.push('/login')
-      }
-      setUserId(userId as string)
-      setIsSubmitting(false)
-    }
-    getUserFromSession()
+    getUserId()
   }, [])
 
-  // Form
-  // 1. Define your form.
+  // Define Form
   const defaultValues = {
     username: '',
     email: '',
@@ -357,7 +354,13 @@ const UpdateAccountForm = ({
       toast.error('Api Key must be 32 characters.')
       return
     }
-    const { error } = await upsertElevenlabsApiKeySA(apiKey)
+
+    if (!userId) {
+      await getUserId()
+      if (!userId) return
+    }
+
+    const { error } = await upsertElevenlabsApiKeySA({ apiKey, userId })
     if (error) {
       toast.error(extractErrorMessage(error, "Can't update user labs api key"))
     } else {

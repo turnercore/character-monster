@@ -2,7 +2,7 @@
 import { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { ThirdPartyAPIKey } from '@/lib/schemas'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
 
@@ -18,8 +18,12 @@ export async function fetchElevenLabsApiKeySA(): Promise<
 > {
   try {
     if (!third_party_keys) throw new Error('Third party keys table not set')
-
-    const supabase = createClient(cookies())
+    const cookieJar = cookies()
+    const headersList = headers()
+    const jwt = headersList.get('user-allowed-session')
+    const supabase = jwt
+      ? createClient(cookieJar, jwt)
+      : createClient(cookieJar)
     const user_id = (await supabase.auth.getSession()).data.session?.user.id
     if (!user_id) throw new Error('User ID not found in session')
     console.log('user_id', user_id)
