@@ -5,21 +5,29 @@ import { z } from 'zod'
 import { createClient } from '@/utils/supabase/server'
 import { cookies, headers } from 'next/headers'
 import { BLURBS_TABLE } from '@/lib/constants'
-import { UUIDSchema, type Blurb } from '@/lib/schemas'
+import { UUIDSchema, type Blurb, UUID } from '@/lib/schemas'
 
 // Type definitions for fetched blurbs
 type ReturnData = {
   blurbs: Blurb[]
 }
 
-// Zod validation of input data for fetching by IDs
+const inputSchema = z.object({
+  userId: UUIDSchema,
+  blurbIds: z.array(UUIDSchema).optional(),
+})
+
+type InputType = z.infer<typeof inputSchema>
+
 const fetchByIdsSchema = z.array(UUIDSchema)
 
 export async function fetchBlurbsSA(
-  userId: string, // For fetching user-specific blurbs
-  blurbIds?: string[] // Optional, for fetching specific blurbs by their IDs
+  input: InputType
 ): Promise<ServerActionReturn<ReturnData>> {
   try {
+    //validate input
+    const { userId, blurbIds } = inputSchema.parse(input)
+
     const cookieJar = cookies()
     const headersList = headers()
     const jwt = headersList.get('user-allowed-session')
@@ -47,7 +55,7 @@ export async function fetchBlurbsSA(
       const { data, error } = await supabase
         .from(BLURBS_TABLE)
         .select('*')
-        .eq('user_id', userId)
+        .eq('owner', userId)
 
       if (error) {
         throw error
@@ -63,6 +71,12 @@ export async function fetchBlurbsSA(
     }
   } catch (error) {
     // Handle and return errors
-    return { error: extractErrorMessage(error) }
+    console.error(error)
+    return {
+      error: extractErrorMessage(
+        error,
+        'Error fetching blurbs, no error message.'
+      ),
+    }
   }
 }

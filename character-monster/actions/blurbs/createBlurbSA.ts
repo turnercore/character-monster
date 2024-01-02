@@ -7,10 +7,11 @@ import { cookies, headers } from 'next/headers'
 import { BLURBS_TABLE } from '@/lib/constants'
 import { BlurbSchema, type Blurb, UUIDSchema } from '@/lib/schemas'
 import { randomUUID } from 'crypto'
+import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
 
 // Zod validation of input data
 const inputSchema = z.object({
-  blurb: BlurbSchema.omit({ id: true, owner: true }),
+  blurb: BlurbSchema.partial({ id: true, owner: true }),
   user_id: UUIDSchema,
 })
 
@@ -26,20 +27,15 @@ export async function createBlurbSA(
       ? createClient(cookieJar, jwt)
       : createClient(cookieJar)
 
-    const blurbId = randomUUID()
+    const blurbId = generateRandomUUID()
     const newBlurb: Blurb = {
       ...blurb,
-      id: blurbId,
-      owner: user_id,
+      id: blurb.id || blurbId,
+      owner: blurb.owner || user_id,
     }
-    const { data, error } = await supabase
-      .from(BLURBS_TABLE)
-      .insert(newBlurb)
-      .single()
+    const { error } = await supabase.from(BLURBS_TABLE).insert(newBlurb)
 
-    if (error || !data) {
-      throw error || new Error('Failed to create blurb')
-    }
+    if (error) throw error
 
     return {
       data: {

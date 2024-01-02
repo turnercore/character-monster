@@ -52,9 +52,9 @@ export default function Login({
         emailRedirectTo: `${origin}/auth/callback`,
       },
     })
-
+    console.log(error)
     if (error) {
-      return redirect('/account/login?message=Could not authenticate user')
+      return redirect('/account/login?message=Could not sign up user')
     }
 
     return redirect(

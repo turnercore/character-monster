@@ -6,11 +6,11 @@ import { z } from 'zod'
 import { createClient } from '@/utils/supabase/server'
 import { cookies, headers } from 'next/headers'
 import { CHARACTERS_TABLE } from '@/lib/constants'
+import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
 
 // Type definitions
 type ReturnData = {
   characterId: UUID
-  success: boolean
 }
 
 // Zod validation of input data (adjust as needed)
@@ -21,10 +21,9 @@ const inputSchema = z.object({
 
 type InputType = z.infer<typeof inputSchema>
 
-export async function createCharacterSA(input: InputType): Promise<
-  // Define your parameters here
-  ServerActionReturn<ReturnData>
-> {
+export async function createCharacterSA(
+  input: InputType
+): Promise<ServerActionReturn<ReturnData>> {
   try {
     // Validate input data
     const { character } = inputSchema.parse(input)
@@ -42,7 +41,7 @@ export async function createCharacterSA(input: InputType): Promise<
       : createClient(cookieJar)
 
     if (!character.id) {
-      character.id = crypto.randomUUID()
+      character.id = generateRandomUUID()
     }
 
     const { error } = await supabase.from(CHARACTERS_TABLE).insert(character)
@@ -55,7 +54,6 @@ export async function createCharacterSA(input: InputType): Promise<
     return {
       data: {
         characterId: character.id,
-        success: true,
       },
     }
   } catch (error) {

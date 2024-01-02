@@ -1,6 +1,7 @@
 // Zod Schemas and Types
 import { z } from 'zod'
 import { generateName } from './tools/nameGenerators'
+import { generateRandomUUID } from './tools/generateRandomUUID'
 
 export type ServerActionReturn<T> = {
   error?: string
@@ -83,6 +84,7 @@ export const BlurbSchema = z.object({
   name: z.string().nullable(),
   content: z.string().nullable(),
   owner: UUIDSchema,
+  color: HexColorCodeSchema.nullable(),
 })
 
 export type Blurb = z.infer<typeof BlurbSchema>
@@ -100,7 +102,7 @@ export type Blurb = z.infer<typeof BlurbSchema>
 // owner uuid not null,
 
 export const CharacterSchema = z.object({
-  id: UUIDSchema.default(() => UUIDSchema.parse(crypto.randomUUID())),
+  id: UUIDSchema.default(() => UUIDSchema.parse(generateRandomUUID())),
   name: z.string().default(generateName()),
   description: z.string().nullable(),
   identity: z.string().nullable(),

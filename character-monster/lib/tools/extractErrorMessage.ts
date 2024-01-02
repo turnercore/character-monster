@@ -4,18 +4,38 @@ import { ZodError } from 'zod'
 // Returns the error message as a string
 // If no error message is present, returns the default error message
 const extractErrorMessage = (
-  error: string | Error | unknown,
-  defaultErrorMessage?: string
+  error:
+    | string
+    | Error
+    | ZodError
+    | { message?: string; code?: string; details?: string; hint?: string }
+    | unknown,
+  defaultErrorMessage: string = 'Unknown error has occurred.'
 ): string => {
-  if (typeof error === 'string') return error
+  if (typeof error === 'string') {
+    return error
+  }
 
   if (error instanceof ZodError) {
     return formatZodErrors(error.format())
   }
 
-  if (error instanceof Error) return error.message
+  if (error instanceof Error) {
+    return error.message
+  }
 
-  return defaultErrorMessage || 'Unknown error has occured.'
+  // Check for Supabase error structure
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const supabaseError = error as {
+      message: string
+      code?: string
+      details?: string
+      hint?: string
+    }
+    return supabaseError.message
+  }
+
+  return defaultErrorMessage
 }
 
 const formatZodErrors = (errors: any): string => {

@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
 import { type UUID, randomUUID } from 'crypto'
 import { mintSupabaseToken } from '@/lib/tools/mintSupabaseToken'
+import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
 
 const API_KEYS_TABLE = 'api_keys' // Adjust to your table name
 
@@ -29,7 +30,7 @@ export async function createApiKeySA(): Promise<
       session.data.session.user.email,
       session.data.session.user.id
     )
-    const jwtId = randomUUID()
+    const jwtId = generateRandomUUID() as UUID
 
     // Store the hashed JWT and salt in Supabase
     const { error } = await supabase.from(API_KEYS_TABLE).insert({
