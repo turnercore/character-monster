@@ -16,10 +16,10 @@ const HomePage = () => {
           <Button variant="outline" asChild>
             <Link href="/character/create">Create NPC</Link>
           </Button>
-          <Button disabled={true} variant="outline" asChild>
+          {/* <Button variant="outline" asChild>
             <Link href="/discord-bot">Discord Bot</Link>
-          </Button>
-          <Button disabled={false} variant="outline" asChild>
+          </Button> */}
+          <Button variant="outline" asChild>
             <Link href="/testing/text-to-speech">Text to Speech</Link>
           </Button>
         </div>
