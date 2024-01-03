@@ -18,6 +18,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -25,6 +27,11 @@ import {
   SelectValue,
 } from '@/components/ui'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
+import upsertElevenlabsApiKeySA from '@/actions/upsertElevenlabsApiKeySA'
+import { createClient } from '@/utils/supabase/client'
+import { UUID } from '@/lib/schemas'
+import { useRouter } from 'next/navigation'
+import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
 
 const formSchema = z.object({
   text: z.string().min(1, { message: 'Please enter some text.' }),
@@ -35,6 +42,47 @@ const formSchema = z.object({
 export default function TextToSpeechPage() {
   const [voices, setVoices] = useState<Voice[]>([])
   const [audioSrc, setAudioSrc] = useState('')
+  const [userId, setUserId] = useState<UUID>('')
+  const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string>('')
+  const supabase = createClient()
+  const Router = useRouter()
+
+  // async function to get userId
+  const getUserId = async () => {
+    // Get userID from session
+    const fetchedId = (await supabase.auth.getSession()).data.session?.user.id
+    if (!fetchedId) {
+      Router.push('/login')
+    }
+    setUserId(fetchedId as UUID)
+    return fetchedId
+  }
+
+  // Get current elevenlabsApiKey if it exists
+  useEffect(() => {
+    if (!userId) return
+    async function getElevenlabsApiKey() {
+      const { data, error } = await supabase
+        .from(THIRD_PARTY_KEYS_TABLE)
+        .select('*')
+        .match({ owner: userId, type: 'elevenlabs' })
+
+      if (error) {
+        console.error(error)
+        toast.error(extractErrorMessage(error, 'Error getting labs api key'))
+        return
+      }
+
+      if (data && data.length > 0) {
+        setElevenlabsApiKey(data[0].api_key)
+      }
+    }
+    getElevenlabsApiKey()
+  }, [userId])
+
+  useEffect(() => {
+    getUserId()
+  }, [])
 
   useEffect(() => {
     const fetchVoices = async () => {
@@ -55,6 +103,30 @@ export default function TextToSpeechPage() {
       voiceId: '',
     },
   })
+
+  const handleUpdateLabsApiKey = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const apiKey = event.target.value
+    if (!apiKey) return
+    if (apiKey === elevenlabsApiKey) return
+    if (apiKey.length !== 32) {
+      toast.error('Api Key must be 32 characters.')
+      return
+    }
+
+    if (!userId) {
+      await getUserId()
+      if (!userId) return
+    }
+
+    const { error } = await upsertElevenlabsApiKeySA({ apiKey, userId })
+    if (error) {
+      toast.error(extractErrorMessage(error, "Can't update user labs api key"))
+    } else {
+      toast.message('Your labs api key has been updated.')
+    }
+  }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -151,6 +223,14 @@ export default function TextToSpeechPage() {
             )}
           </form>
         </Form>
+        <div className="flex flex-row mt-16">
+          <Label>ElevenLabs Api Key</Label>
+          <Input
+            type="text"
+            placeholder={elevenlabsApiKey}
+            onBlur={handleUpdateLabsApiKey}
+          />
+        </div>
       </CardContent>
     </Card>
   )
