@@ -5,10 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest, res: NextApiResponse) {
   const body = await req.json()
   const { voiceId, text } = body
-  console.log('voiceId', voiceId)
-  console.log('text', text)
   const { data, error } = await textToSpeechSA({ voiceId, text })
-  console.log(data)
   console.log(error)
 
   if (error || !data) {

@@ -41,7 +41,6 @@ export default async function updateUserDataSA(
   try {
     // Get the form data into a javascript object
     const form = Object.fromEntries(formData.entries())
-    console.log('form', form)
 
     // Validate data
     const result = inputSchema.parse(form)

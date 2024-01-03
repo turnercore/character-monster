@@ -48,6 +48,7 @@
     "lucide-react": "^0.303.0",
     "next": "latest",
     "next-themes": "^0.2.1",
+    "openai": "^4.24.1",
     "postcss": "^8.4.32",
     "react": "18.2.0",
     "react-colorful": "^5.6.1",

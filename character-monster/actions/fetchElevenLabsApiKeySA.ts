@@ -26,7 +26,6 @@ export async function fetchElevenLabsApiKeySA(): Promise<
       : createClient(cookieJar)
     const user_id = (await supabase.auth.getSession()).data.session?.user.id
     if (!user_id) throw new Error('User ID not found in session')
-    console.log('user_id', user_id)
 
     const { data: ApiKeyData, error: APIKeyFetchError } = await supabase
       .from(third_party_keys)

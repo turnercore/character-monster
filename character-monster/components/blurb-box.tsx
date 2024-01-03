@@ -51,7 +51,7 @@ import { deleteBlurbSA } from '@/actions/blurbs/deleteBlurbSA'
 import { fetchBlurbsSA } from '@/actions/blurbs/fetchBlurbsSA'
 import { Label } from '@/components/ui/label'
 import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
-import { Textarea } from './textarea'
+import { Textarea } from '@/components/ui/textarea'
 
 // FIXME: https://twitter.com/lemcii/status/1659649371162419202?s=46&t=gqNnMIjMWXiG2Rbrr5gT6g
 // Removing states would help maybe?
@@ -65,7 +65,9 @@ const badgeStyle = (color: string) => ({
 export function BlurbBox({
   userId,
   onSelectedValuesChange,
+  initialBlurbs,
 }: {
+  initialBlurbs?: UUID[]
   userId: UUID
   onSelectedValuesChange: (selectedBlurbIds: UUID[]) => void
 }) {
@@ -76,6 +78,34 @@ export function BlurbBox({
   const [inputValue, setInputValue] = useState<string>('')
   const [selectedValues, setSelectedValues] = useState<Blurb[]>([])
   const [selectedBlurbIds, setSelectedBlurbIds] = useState<UUID[]>([])
+
+  // Set up the initial selected blurbs
+  useEffect(() => {
+    if (
+      !initialBlurbs ||
+      selectedValues.length > 0 ||
+      selectedBlurbIds.length > 0
+    )
+      return
+
+    const fetchInitialBlurbs = async () => {
+      if (!initialBlurbs) return
+
+      const { data: fetchedBlurbs, error } = await fetchBlurbsSA({
+        userId,
+        blurbIds: initialBlurbs,
+      })
+      if (error || !fetchedBlurbs) {
+        toast.error('Could not fetch blurbs \n ERROR: ' + error)
+      } else {
+        console.log('fetchedBlurbs', fetchedBlurbs)
+        setSelectedValues(fetchedBlurbs.blurbs)
+        setSelectedBlurbIds(fetchedBlurbs.blurbs.map(({ id }) => id))
+      }
+    }
+
+    fetchInitialBlurbs()
+  }, [])
 
   // Fetch all the blurbs from the userId and set them as blurbs on mount
   useEffect(() => {
@@ -94,6 +124,7 @@ export function BlurbBox({
   // Update the callback function when selectedBlurbIds change
   useEffect(() => {
     onSelectedValuesChange(selectedBlurbIds)
+    console.log('selectedBlurbIds', selectedBlurbIds)
   }, [selectedBlurbIds])
 
   // Helper functions with optimistic updates
@@ -138,6 +169,11 @@ export function BlurbBox({
         : currentBlurbs.filter((l) => l.id !== blurb.id)
     )
     inputRef?.current?.focus()
+    setSelectedBlurbIds((currentBlurbIds) =>
+      !currentBlurbIds.includes(blurb.id)
+        ? [...currentBlurbIds, blurb.id]
+        : currentBlurbIds.filter((l) => l !== blurb.id)
+    )
   }
 
   const updateBlurb = (blurbUpdates: Blurb) => {

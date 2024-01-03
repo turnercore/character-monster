@@ -25,7 +25,6 @@ export const openaiModeration = async (
     // to use it in the rest of your server action.
 
     const { input } = result
-    console.log('input', input)
 
     const response = await fetch('https://api.openai.com/v1/moderations', {
       method: 'POST',
@@ -37,7 +36,6 @@ export const openaiModeration = async (
     })
 
     const data = await response.json()
-    console.log('data', data)
 
     // Check for flags
     const { flagged } = data.results[0]

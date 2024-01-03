@@ -26,8 +26,8 @@ import {
   Textarea,
 } from '@/components/ui'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
-import { BlurbSchema, Character, UUIDSchema, type UUID } from '@/lib/schemas'
-import { BlurbBox } from '@/components/ui/blurb-box'
+import { Character, UUIDSchema, type UUID } from '@/lib/schemas'
+import { BlurbBox } from '@/components/blurb-box'
 import { createCharacterSA } from '@/actions/characters/createCharacterSA'
 import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
 import { useRouter } from 'next/navigation'
@@ -91,6 +91,9 @@ export default function CreateCharacterForm({ userId }: { userId: UUID }) {
       toast.success(`${character.name} joins the world!`)
       router.push(`/character/${character.id}`)
     }
+  }
+  const handleBlurbBoxChange = (values: UUID[]) => {
+    form.setValue('knowledge', values)
   }
 
   return (
@@ -194,7 +197,7 @@ export default function CreateCharacterForm({ userId }: { userId: UUID }) {
                   <FormControl>
                     <BlurbBox
                       userId={userId}
-                      onSelectedValuesChange={field.onChange}
+                      onSelectedValuesChange={handleBlurbBoxChange}
                     />
                   </FormControl>
                   <FormMessage />
