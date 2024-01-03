@@ -80,32 +80,32 @@ export function BlurbBox({
   const [selectedBlurbIds, setSelectedBlurbIds] = useState<UUID[]>([])
 
   // Set up the initial selected blurbs
-  useEffect(() => {
-    if (
-      !initialBlurbs ||
-      selectedValues.length > 0 ||
-      selectedBlurbIds.length > 0
-    )
-      return
+  // useEffect(() => {
+  //   if (
+  //     !initialBlurbs ||
+  //     selectedValues.length > 0 ||
+  //     selectedBlurbIds.length > 0
+  //   )
+  //     return
 
-    const fetchInitialBlurbs = async () => {
-      if (!initialBlurbs) return
+  //   const fetchInitialBlurbs = async () => {
+  //     if (!initialBlurbs) return
 
-      const { data: fetchedBlurbs, error } = await fetchBlurbsSA({
-        userId,
-        blurbIds: initialBlurbs,
-      })
-      if (error || !fetchedBlurbs) {
-        toast.error('Could not fetch blurbs \n ERROR: ' + error)
-      } else {
-        console.log('fetchedBlurbs', fetchedBlurbs)
-        setSelectedValues(fetchedBlurbs.blurbs)
-        setSelectedBlurbIds(fetchedBlurbs.blurbs.map(({ id }) => id))
-      }
-    }
+  //     const { data: fetchedBlurbs, error } = await fetchBlurbsSA({
+  //       userId,
+  //       blurbIds: initialBlurbs,
+  //     })
+  //     if (error || !fetchedBlurbs) {
+  //       toast.error('Could not fetch blurbs \n ERROR: ' + error)
+  //     } else {
+  //       console.log('fetchedBlurbs', fetchedBlurbs)
+  //       setSelectedValues(fetchedBlurbs.blurbs)
+  //       setSelectedBlurbIds(fetchedBlurbs.blurbs.map(({ id }) => id))
+  //     }
+  //   }
 
-    fetchInitialBlurbs()
-  }, [])
+  //   fetchInitialBlurbs()
+  // }, [])
 
   // Fetch all the blurbs from the userId and set them as blurbs on mount
   useEffect(() => {
@@ -115,6 +115,14 @@ export function BlurbBox({
         toast.error('Could not fetch blurbs \n ERROR: ' + error)
       } else {
         setBlurbs(fetchedBlurbs.blurbs)
+        // Set selected blurbs if there are any
+        if (initialBlurbs) {
+          const selectedBlurbs = fetchedBlurbs.blurbs.filter(({ id }) =>
+            initialBlurbs.includes(id)
+          )
+          setSelectedValues(selectedBlurbs)
+          setSelectedBlurbIds(selectedBlurbs.map(({ id }) => id))
+        }
       }
     }
 

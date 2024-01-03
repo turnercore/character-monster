@@ -102,6 +102,8 @@ export default function CharacterEditor({
     form.setValue('knowledge', values)
   }
 
+  console.log(characterData.knowledge)
+
   return (
     <Card className="flex flex-col items-left mt-5 mx-5">
       <CardHeader className="text-2xl font-bold text-center">
