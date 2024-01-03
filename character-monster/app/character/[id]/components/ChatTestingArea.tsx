@@ -154,7 +154,9 @@ const ChatTestingArea = ({
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+            <Button disabled={loading} type="submit">
+              {loading ? 'Thinking...' : 'Send Message!'}
+            </Button>
           </form>
         </Form>
         <div className="mt-4">
