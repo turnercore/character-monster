@@ -80,15 +80,19 @@ export async function getNpcResponseSA(
 
     const systemMessage = `${system} + 'Use the following context for your character: 
       Your name is ${character.name}.
-      You are described as ${character.description}.
       Your identity is ${character.identity}.
-      The recent history and conversations involving your character are as follows:
-      ${character.history}
+
+      Here are some addtional details about your character:
+      ${character.fields.map((field) => `${field.name}: ${field.content}`)}
 
       Your character has the following knowledgebase:
       ${blurbs
         .map((blurb) => `${blurb.name || ''}: ${blurb.content || ''}`)
         .join('\n')}'
+      
+      The recent history and conversations involving your character are as follows:
+      ${character.history}
+      
       `
 
     console.log('systemMessage', systemMessage)

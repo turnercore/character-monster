@@ -51,8 +51,8 @@ import hash from '@/lib/tools/hash'
 import updateUserAvatarSetSA from '../actions/updateUserAvatarSet'
 import { BsTrash3Fill } from 'react-icons/bs'
 import { DialogClose } from '@radix-ui/react-dialog'
-import upsertElevenlabsApiKeySA from '@/actions/upsertElevenlabsApiKeySA'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
+import { ThirdPartyApiKeyUpdateField } from '@/components/ThirdPartyApiKeyUpdateField'
 // validation schema for form
 const formSchema = z
   .object({
@@ -344,30 +344,6 @@ const UpdateAccountForm = ({
     }
   }
 
-  const handleUpdateLabsApiKey = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const apiKey = event.target.value
-    if (!apiKey) return
-    if (apiKey === elevenlabsApiKey) return
-    if (apiKey.length !== 32) {
-      toast.error('Api Key must be 32 characters.')
-      return
-    }
-
-    if (!userId) {
-      await getUserId()
-      if (!userId) return
-    }
-
-    const { error } = await upsertElevenlabsApiKeySA({ apiKey, userId })
-    if (error) {
-      toast.error(extractErrorMessage(error, "Can't update user labs api key"))
-    } else {
-      toast.message('Your labs api key has been updated.')
-    }
-  }
-
   // User Account update form
   return (
     <Card className="mx-auto max-w-2xl">
@@ -608,11 +584,7 @@ const UpdateAccountForm = ({
 
         <div className="flex flex-row">
           <Label>ElevenLabs Api Key</Label>
-          <Input
-            type="text"
-            placeholder={elevenlabsApiKey}
-            onBlur={handleUpdateLabsApiKey}
-          />
+          <ThirdPartyApiKeyUpdateField service="elevenlabs" userId={userId} />
         </div>
       </CardContent>
     </Card>

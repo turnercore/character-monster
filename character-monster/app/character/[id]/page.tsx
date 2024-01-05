@@ -1,12 +1,13 @@
 // Server Side Rendered Page
 import ServerToastMessage from '@/components/ServerToastMessage'
-import { CHARACTERS_TABLE } from '@/lib/constants'
-import { UUID } from '@/lib/schemas'
+import { CHARACTERS_TABLE, THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
+import { ThirdPartyAPIKeySchema, UUID } from '@/lib/schemas'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
-import CharacterEditor from './components/CharacterEditor'
+import CharacterEditor from '@/components/CharacterEditor'
 import ChatTestingArea from './components/ChatTestingArea'
+import { ThirdPartyApiKeyUpdateField } from '@/components/ThirdPartyApiKeyUpdateField'
 
 // Define expected params and search params
 type PageParams = {
@@ -81,13 +82,37 @@ const CharacterPage = async ({
     )
   }
 
+  // Check for a saved openai key
+  const { count: rowCount, error: userError } = await supabase
+    .from(THIRD_PARTY_KEYS_TABLE)
+    .select('*', { count: 'exact', head: true })
+    .match({ owner: userId, type: 'open_ai' })
+
+  // if one exists, set hasOpenAiKey to true
+  const hasOpenAiKey = !userError && rowCount && rowCount > 0 ? true : false
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-full pb-[250px]">
       <div className="w-1/2">
-        <CharacterEditor characterData={characterData} userId={userId} />
+        <CharacterEditor
+          varient="edit"
+          characterData={characterData}
+          userId={userId}
+        />
       </div>
       <div className="w-1/2">
-        <ChatTestingArea userId={userId} character={characterData} />
+        {hasOpenAiKey ? (
+          <ChatTestingArea userId={userId} character={characterData} />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full">
+            <h1 className="text-2xl font-bold">OpenAI API Key Required</h1>
+            <p className="text-lg text-center">
+              You need to add an OpenAI API key to your account to use this
+              feature.
+            </p>
+            <ThirdPartyApiKeyUpdateField service="open_ai" userId={userId} />
+          </div>
+        )}
       </div>
     </div>
   )

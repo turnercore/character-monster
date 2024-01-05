@@ -3,7 +3,7 @@ import { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { createClient } from '@/utils/supabase/server'
 import { cookies, headers } from 'next/headers'
-import { ThirdPartyAPIKey } from '@/lib/schemas'
+import { ThirdPartyAPIKey, type SupportedServices } from '@/lib/schemas'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
 
 // Type definitions
@@ -13,9 +13,10 @@ type ReturnData = {
 
 const third_party_keys = THIRD_PARTY_KEYS_TABLE
 
-export async function fetchElevenLabsApiKeySA(): Promise<
-  ServerActionReturn<ReturnData>
-> {
+// Fetch a third-party API key based on the service type
+export async function fetchThirdPartyKeySA(
+  service: SupportedServices
+): Promise<ServerActionReturn<ReturnData>> {
   try {
     if (!third_party_keys) throw new Error('Third party keys table not set')
     const cookieJar = cookies()
@@ -31,20 +32,20 @@ export async function fetchElevenLabsApiKeySA(): Promise<
       .from(third_party_keys)
       .select('*')
       .eq('owner', user_id)
+      .eq('type', service) // Use the 'service' parameter to filter
 
     if (APIKeyFetchError || !ApiKeyData || ApiKeyData.length === 0)
-      throw new Error('Failed to retrieve API key from Supabase')
+      throw new Error(`Failed to retrieve ${service} API key from Supabase`)
 
-    const ApiKeys = ApiKeyData as ThirdPartyAPIKey[]
-    const elevenLabsKey = ApiKeys.find((key) => key.type === 'elevenlabs')
-    if (!elevenLabsKey) throw new Error('No elevenlabs API key found')
+    const apiKey = ApiKeyData.find((key) => key.type === service)
+    if (!apiKey) throw new Error(`No ${service} API key found`)
 
-    return { data: { apiKey: elevenLabsKey.api_key } }
+    return { data: { apiKey: apiKey.api_key } }
   } catch (error) {
     return {
       error: extractErrorMessage(
         error,
-        'Unknown error in fetchElevenLabsApiKeySA'
+        `Unknown error in fetchThirdPartyKeySA for ${service}`
       ),
     }
   }

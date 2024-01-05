@@ -1,7 +1,7 @@
 'use server'
 import { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
-import { fetchElevenLabsApiKeySA } from './fetchElevenLabsApiKeySA' // Adjust the import path as needed
+import { fetchThirdPartyKeySA } from './fetchThirdPartyKeySA' // Adjust the import path as needed
 
 // Type definitions for the response
 export type Voice = {
@@ -16,8 +16,9 @@ type ReturnData = {
 
 export async function getVoicesSA(): Promise<ServerActionReturn<ReturnData>> {
   try {
-    const { data: apiKeyData, error: apiKeyError } =
-      await fetchElevenLabsApiKeySA()
+    const { data: apiKeyData, error: apiKeyError } = await fetchThirdPartyKeySA(
+      'elevenlabs'
+    )
     if (apiKeyError || !apiKeyData)
       throw new Error(apiKeyError || 'No ElevenLabs API key found')
 

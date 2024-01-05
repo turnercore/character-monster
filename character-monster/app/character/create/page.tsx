@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import CreateCharacterForm from './components/createCharacterForm'
+import CharacterEditor from '@/components/CharacterEditor'
 import { cookies } from 'next/headers'
 
 const CreateCharacterPage = async () => {
@@ -14,7 +14,7 @@ const CreateCharacterPage = async () => {
 
   return (
     <div className=" min-h-screen">
-      <CreateCharacterForm userId={userId} />
+      <CharacterEditor varient='create' userId={userId} />
     </div>
   )
 }

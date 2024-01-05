@@ -27,11 +27,11 @@ import {
   SelectValue,
 } from '@/components/ui'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
-import upsertElevenlabsApiKeySA from '@/actions/upsertElevenlabsApiKeySA'
 import { createClient } from '@/utils/supabase/client'
 import { UUID } from '@/lib/schemas'
 import { useRouter } from 'next/navigation'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
+import {ThirdPartyApiKeyUpdateField} from '@/components/ThirdPartyApiKeyUpdateField'
 
 const formSchema = z.object({
   text: z.string().min(1, { message: 'Please enter some text.' }),
@@ -103,30 +103,6 @@ export default function TextToSpeechPage() {
       voiceId: '',
     },
   })
-
-  const handleUpdateLabsApiKey = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const apiKey = event.target.value
-    if (!apiKey) return
-    if (apiKey === elevenlabsApiKey) return
-    if (apiKey.length !== 32) {
-      toast.error('Api Key must be 32 characters.')
-      return
-    }
-
-    if (!userId) {
-      await getUserId()
-      if (!userId) return
-    }
-
-    const { error } = await upsertElevenlabsApiKeySA({ apiKey, userId })
-    if (error) {
-      toast.error(extractErrorMessage(error, "Can't update user labs api key"))
-    } else {
-      toast.message('Your labs api key has been updated.')
-    }
-  }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -225,11 +201,7 @@ export default function TextToSpeechPage() {
         </Form>
         <div className="flex flex-row mt-16">
           <Label>ElevenLabs Api Key</Label>
-          <Input
-            type="text"
-            placeholder={elevenlabsApiKey}
-            onBlur={handleUpdateLabsApiKey}
-          />
+          <ThirdPartyApiKeyUpdateField userId={userId} service="elevenlabs" />
         </div>
       </CardContent>
     </Card>

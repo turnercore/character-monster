@@ -3,7 +3,7 @@
 import { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { z } from 'zod'
-import { fetchElevenLabsApiKeySA } from './fetchElevenLabsApiKeySA'
+import { fetchThirdPartyKeySA } from './fetchThirdPartyKeySA'
 
 // Type definitions
 type ReturnData = {
@@ -26,7 +26,7 @@ export async function textToSpeechSA(input: {
 
     // Fetch ElevenLabs API key
     const { data: elevenLabsKeyData, error: elevenLabsKeyError } =
-      await fetchElevenLabsApiKeySA()
+      await fetchThirdPartyKeySA('elevenlabs')
     if (elevenLabsKeyError || !elevenLabsKeyData) {
       throw new Error(elevenLabsKeyError || 'No ElevenLabs API key found')
     }
