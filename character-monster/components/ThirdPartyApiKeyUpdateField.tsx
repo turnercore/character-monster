@@ -1,10 +1,11 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Input } from '@/components/ui' // Ensure correct import paths
 import { toast } from 'sonner'
 import { upsertThirdPartyApiKeySA } from '@/actions/upsertThirdPartyApiKeySA' // Import your action to update the key
 import { type SupportedServices, type UUID } from '@/lib/schemas'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
+import { fetchThirdPartyKeySA } from '@/actions/fetchThirdPartyKeySA'
 
 export const ThirdPartyApiKeyUpdateField = ({
   userId,
@@ -14,6 +15,19 @@ export const ThirdPartyApiKeyUpdateField = ({
   service: SupportedServices
 }) => {
   const [apiKey, setApiKey] = useState('')
+  const [apiKeyPlaceholder, setApiKeyPlaceholder] = useState('')
+
+  const fetchApiKey = async () => {
+    const { data, error } = await fetchThirdPartyKeySA(service)
+
+    if (error || !data || !data.apiKey) return
+
+    setApiKeyPlaceholder(data.apiKey)
+  }
+  // Get api key if it exists on start
+  useEffect(() => {
+    fetchApiKey()
+  }, [])
 
   const handleUpdateApiKey = async () => {
     if (!apiKey) return
@@ -47,7 +61,7 @@ export const ThirdPartyApiKeyUpdateField = ({
       value={apiKey}
       onChange={(e) => setApiKey(e.target.value)}
       onBlur={handleUpdateApiKey}
-      placeholder={`Enter your ${service} API key here`}
+      placeholder={`${apiKeyPlaceholder}`}
     />
   )
 }
