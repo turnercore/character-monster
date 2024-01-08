@@ -1,12 +1,12 @@
 // createApiKeySA.ts
 'use server'
-import { ServerActionReturn } from '@/lib/types'
+import type { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
-import { type UUID, randomUUID } from 'crypto'
-import { mintSupabaseToken } from '@/lib/tools/mintSupabaseToken'
+import { mintSupabaseToken } from '@/lib/tools/server/mintSupabaseToken'
 import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
+import { type UUID } from '@/lib/schemas'
 
 const API_KEYS_TABLE = 'api_keys' // Adjust to your table name
 

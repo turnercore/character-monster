@@ -37,6 +37,7 @@ import {
   DialogFooter,
   Label,
 } from '@/components/ui'
+import { ApiKeySettingsCard } from '@/components/ApiKeySettingsCard'
 import { toast } from 'sonner'
 import { SwatchesPicker } from '@/components/ui/color-picker'
 import { UUID, type Profile } from '@/lib/schemas'
@@ -51,8 +52,7 @@ import hash from '@/lib/tools/hash'
 import updateUserAvatarSetSA from '../actions/updateUserAvatarSet'
 import { BsTrash3Fill } from 'react-icons/bs'
 import { DialogClose } from '@radix-ui/react-dialog'
-import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
-import { ThirdPartyApiKeyUpdateField } from '@/components/ThirdPartyApiKeyUpdateField'
+
 // validation schema for form
 const formSchema = z
   .object({
@@ -160,7 +160,6 @@ const UpdateAccountForm = ({
   const [currentUsername, setCurrentUsername] = useState(profile.username)
   const [currentColor, setCurrentColor] = useState(profile.color)
   const [avatarSet, setAvatarSet] = useState(profile.avatar_set || 1)
-  const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string>('')
   const supabase = createClient()
 
   // async function to get userId
@@ -173,28 +172,6 @@ const UpdateAccountForm = ({
     setUserId(fetchedId as UUID)
     return fetchedId
   }
-
-  // Get current elevenlabsApiKey if it exists
-  useEffect(() => {
-    if (!userId) return
-    async function getElevenlabsApiKey() {
-      const { data, error } = await supabase
-        .from(THIRD_PARTY_KEYS_TABLE)
-        .select('*')
-        .match({ owner: userId, type: 'elevenlabs' })
-
-      if (error) {
-        console.error(error)
-        toast.error(extractErrorMessage(error, 'Error getting labs api key'))
-        return
-      }
-
-      if (data && data.length > 0) {
-        setElevenlabsApiKey(data[0].api_key)
-      }
-    }
-    getElevenlabsApiKey()
-  }, [userId])
 
   useEffect(() => {
     getUserId()
@@ -579,13 +556,7 @@ const UpdateAccountForm = ({
             </div>
           </form>
         </Form>
-
-        {/* ElevenLabs Api Key, placeholder TODO: Make API Key form */}
-
-        <div className="flex flex-row">
-          <Label>ElevenLabs Api Key</Label>
-          <ThirdPartyApiKeyUpdateField service="elevenlabs" userId={userId} />
-        </div>
+        <ApiKeySettingsCard userId={userId} />
       </CardContent>
     </Card>
   )

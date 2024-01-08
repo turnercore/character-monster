@@ -1,15 +1,14 @@
 'use server'
 import { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
-import { createClient } from '@/utils/supabase/server'
 import {
   ThirdPartyAPIKey,
   ThirdPartyAPIKeySchema,
   SupportedServicesSchema,
 } from '@/lib/schemas'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
-import { cookies, headers } from 'next/headers'
 import { z } from 'zod'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 type ReturnType = {
   success: boolean
@@ -26,14 +25,9 @@ export const upsertThirdPartyApiKeySA = async ({
   apiKey,
   service,
 }: InputType): Promise<ServerActionReturn<ReturnType>> => {
-  const cookieJar = cookies()
-  const headersList = headers()
-  const jwt = headersList.get('user-allowed-session')
-  const supabase = jwt ? createClient(cookieJar, jwt) : createClient(cookieJar)
   try {
     // Get user Id
-    const userId = (await supabase.auth.getSession()).data.session?.user.id
-    if (!userId) throw new Error('User ID not found in session')
+    const { supabase, userId } = await setupSupabaseServerAction()
 
     const newAPIKey: ThirdPartyAPIKey = ThirdPartyAPIKeySchema.parse({
       api_key: apiKey,

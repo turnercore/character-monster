@@ -8,7 +8,6 @@ import OpenAI from 'openai'
 import { cookies, headers } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
-import { Models } from 'openai/resources'
 import { fetchBlurbsSA } from './blurbs/fetchBlurbsSA'
 
 const openai = new OpenAI()

@@ -48,14 +48,14 @@ export type ColorPaletteType = z.infer<typeof ColorPaletteSchema>
 //     id uuid not null default gen_random_uuid (),
 //     user_id uuid not null,
 
-export const APIKeySchema = z.object({
-  id: UUIDSchema,
-  jwt: z.string(),
+export const MonsterTokenSchema = z.object({
   user_id: UUIDSchema,
+  token: z.string(),
+  jwt: z.string(),
   logs: z.array(z.date()).nullable(),
 })
 
-export type APIKey = z.infer<typeof APIKeySchema>
+export type MonsterToken = z.infer<typeof MonsterTokenSchema>
 
 // Third party API Key Schema and Type
 // id uuid not null default auth.uid (),

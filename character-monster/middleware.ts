@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/utils/supabase/middleware'
 import { API_KEYS_TABLE } from './lib/constants'
-import { getJwtFromToken } from './lib/tools/getJwtFromToken'
+import { getJwtFromToken } from './lib/tools/server/getJwtFromToken'
 
 const protectedRoutes = ['/testing', '/character', '/auth/account/profile']
 
