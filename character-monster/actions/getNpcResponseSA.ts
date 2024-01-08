@@ -5,8 +5,6 @@ import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { z } from 'zod'
 import { fetchCharactersSA } from '@/actions/characters/fetchCharactersSA'
 import OpenAI from 'openai'
-import { cookies, headers } from 'next/headers'
-import { createClient } from '@/utils/supabase/server'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
 import { fetchBlurbsSA } from './blurbs/fetchBlurbsSA'
 import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
@@ -32,6 +30,8 @@ export async function getNpcResponseSA(
 
     // Supabase Setup
     const { userId, supabase } = await setupSupabaseServerAction()
+    console.log('doing the thing')
+    console.log('userId', userId)
 
     const { data: ApiKeyData, error: APIKeyFetchError } = await supabase
       .from(THIRD_PARTY_KEYS_TABLE)
@@ -59,7 +59,6 @@ export async function getNpcResponseSA(
 
     // Construct the knowledgebase for the character from blurb ids
     const { data: blurbData, error: blurbError } = await fetchBlurbsSA({
-      userId,
       blurbIds: character.knowledge || [],
     })
 

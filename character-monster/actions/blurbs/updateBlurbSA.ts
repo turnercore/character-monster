@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/server'
 import { cookies, headers } from 'next/headers'
 import { BLURBS_TABLE } from '@/lib/constants'
 import { BlurbSchema, UUIDSchema } from '@/lib/schemas'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Zod validation of input data for update
 const inputSchema = z.object({
@@ -20,12 +21,7 @@ export async function updateBlurbSA(
 ): Promise<ServerActionReturn<{ success: boolean }>> {
   try {
     const { id, updates } = inputSchema.parse(input)
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     const { error } = await supabase
       .from(BLURBS_TABLE)

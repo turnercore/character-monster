@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     const validatedBody = inputSchema.parse(body)
 
     const { prompt, character, model } = validatedBody
+    console.log('getting character id')
 
     // Get characterid from name
     const { data: characterData, error: characterError } =

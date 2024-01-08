@@ -30,8 +30,7 @@ export async function getCharacterIdSA(
     const { data: characterData, error: characterError } = await supabase
       .from(CHARACTERS_TABLE)
       .select('id')
-      .eq('name', characterName)
-      .or(`owner.eq.${userId},users.contains.${userId}`)
+      .match({ name: characterName, owner: userId })
 
     if (characterError || !characterData || characterData.length === 0)
       throw new Error(

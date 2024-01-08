@@ -12,20 +12,10 @@ const apiKeysTable = API_KEYS_TABLE || 'api_keys' // Adjust as per your table na
 export async function getJwtFromToken(monsterToken: string) {
   const supabase = createClient(cookies())
 
-  // Get userId from supabase session
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession()
-
-  if (!sessionData?.session || sessionError) {
-    console.log('error', sessionError)
-  }
-
-  const userId = sessionData?.session?.user.id
-
   const { data, error } = await supabase
     .from(apiKeysTable)
     .select('jwt')
-    .match({ token: monsterToken, user_id: userId })
+    .match({ token: monsterToken })
     .single()
 
   if (error) {

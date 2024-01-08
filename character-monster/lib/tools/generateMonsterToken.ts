@@ -224,13 +224,13 @@ const shuffledWords = allMonsterWords.sort(() => 0.5 - randomInt(0, 1))
 const prefixList = ['Key-Of-', 'Token-Of-', 'Monster-Of-']
 
 export const generateMonsterToken = () => {
-  // Create the key from words in the array, prefix + 5 random words from allMonsterWords\
+  // Create the key from words in the array, prefix + 6 random words from allMonsterWords\
   const prefix = prefixList[randomInt(0, prefixList.length - 1)]
   const token =
     prefix +
     allMonsterWords
       .sort(() => 0.5 - randomInt(0, allMonsterWords.length - 1))
-      .slice(0, 5)
+      .slice(0, 6)
       .join('-')
   return token
 }

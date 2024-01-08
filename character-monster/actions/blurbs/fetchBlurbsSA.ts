@@ -2,10 +2,9 @@
 import { type ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { z } from 'zod'
-import { createClient } from '@/utils/supabase/server'
-import { cookies, headers } from 'next/headers'
 import { BLURBS_TABLE } from '@/lib/constants'
 import { UUIDSchema, type Blurb, UUID } from '@/lib/schemas'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Type definitions for fetched blurbs
 type ReturnData = {
@@ -13,7 +12,6 @@ type ReturnData = {
 }
 
 const inputSchema = z.object({
-  userId: UUIDSchema,
   blurbIds: z.array(UUIDSchema).optional(),
 })
 
@@ -26,14 +24,9 @@ export async function fetchBlurbsSA(
 ): Promise<ServerActionReturn<ReturnData>> {
   try {
     //validate input
-    const { userId, blurbIds } = inputSchema.parse(input)
+    const { blurbIds } = inputSchema.parse(input)
 
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     let blurbs: Blurb[] = []
 

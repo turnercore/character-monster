@@ -3,10 +3,9 @@
 import { z } from 'zod'
 import { ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
-import { createClient } from '@/utils/supabase/server'
-import { cookies, headers } from 'next/headers'
 import { CHARACTERS_TABLE } from '@/lib/constants'
 import { UUIDSchema } from '@/lib/schemas'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 const inputSchema = z.object({
   characterId: UUIDSchema,
@@ -21,12 +20,7 @@ export async function addDialogueToCharacterSA(
 ): Promise<ServerActionReturn<{ success: boolean }>> {
   try {
     const { characterId, playerLine, npcResponse } = inputSchema.parse(input)
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     const { data, error } = await supabase
       .from(CHARACTERS_TABLE)

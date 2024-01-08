@@ -6,8 +6,8 @@ import { createClient } from '@/utils/supabase/server'
 import { cookies, headers } from 'next/headers'
 import { BLURBS_TABLE } from '@/lib/constants'
 import { BlurbSchema, type Blurb, UUIDSchema } from '@/lib/schemas'
-import { randomUUID } from 'crypto'
 import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Zod validation of input data
 const inputSchema = z.object({
@@ -20,12 +20,7 @@ export async function createBlurbSA(
 ): Promise<ServerActionReturn<{ blurbId: string }>> {
   try {
     const { blurb, user_id } = inputSchema.parse(input)
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     const blurbId = generateRandomUUID()
     const newBlurb: Blurb = {

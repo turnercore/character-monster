@@ -3,10 +3,9 @@ import { CharacterSchema, type UUID } from '@/lib/schemas'
 import { type ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { z } from 'zod'
-import { createClient } from '@/utils/supabase/server'
-import { cookies, headers } from 'next/headers'
 import { CHARACTERS_TABLE } from '@/lib/constants'
 import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Type definitions
 type ReturnData = {
@@ -31,14 +30,7 @@ export async function createCharacterSA(
     if (!character) {
       throw new Error('No character found')
     }
-
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     if (!character.id) {
       character.id = generateRandomUUID()

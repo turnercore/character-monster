@@ -2,10 +2,9 @@
 import { type ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { z } from 'zod'
-import { createClient } from '@/utils/supabase/server'
-import { cookies, headers } from 'next/headers'
 import { CHARACTERS_TABLE } from '@/lib/constants'
 import { UUIDSchema, type Character } from '@/lib/schemas'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Type definitions for fetched characters
 type ReturnData = {
@@ -20,12 +19,7 @@ export async function fetchCharactersSA(
 ): Promise<ServerActionReturn<ReturnData>> {
   try {
     const validatedIds = inputSchema.parse(characterIds)
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     let characters: Character[] = []
     for (const id of validatedIds) {

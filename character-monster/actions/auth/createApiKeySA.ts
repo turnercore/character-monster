@@ -19,7 +19,7 @@ export async function createApiKeySA(): Promise<
     const session = await supabase.auth.getSession()
 
     if (!session.data.session?.user || session.error) {
-      throw new Error('User not authenticated')
+      throw new Error('User not authenticated!')
     }
 
     if (!session.data.session.user.email || !session.data.session.user.id) {

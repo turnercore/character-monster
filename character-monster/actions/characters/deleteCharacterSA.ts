@@ -2,9 +2,8 @@
 import { type ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { z } from 'zod'
-import { createClient } from '@/utils/supabase/server'
-import { cookies, headers } from 'next/headers'
 import { CHARACTERS_TABLE } from '@/lib/constants'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Type definitions for the response
 type ReturnData = {
@@ -24,12 +23,7 @@ export async function deleteCharacterSA(
   try {
     // Validate input data
     const { id } = inputSchema.parse(input)
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     const { error } = await supabase
       .from(CHARACTERS_TABLE)

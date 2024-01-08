@@ -2,10 +2,9 @@
 import { z } from 'zod'
 import { type ServerActionReturn } from '@/lib/types'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
-import { createClient } from '@/utils/supabase/server'
-import { cookies, headers } from 'next/headers'
 import { CHARACTERS_TABLE } from '@/lib/constants'
 import { UUIDSchema } from '@/lib/schemas'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Type definitions
 type ReturnData = {
@@ -26,12 +25,9 @@ export async function addEventToCharactersSA(
   try {
     // Validate input data
     const { characterIds, event } = inputSchema.parse(input)
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
+
+    // Supabase Setup
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     await Promise.all(
       characterIds.map(async (id) => {

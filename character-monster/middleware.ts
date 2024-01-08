@@ -44,7 +44,6 @@ export async function middleware(req: NextRequest) {
       // Reset user-allowed-session header to empty string to prevent spoofing
       req.headers.set('user-allowed-session', '')
       if (monsterToken) {
-        console.log('monsterToken', monsterToken)
         const jwt = await getJwtFromToken(monsterToken)
         if (jwt) {
           // Log the user's use of the jwt with timestamp, we don't need to await this

@@ -82,7 +82,7 @@ export function BlurbBox({
   // Fetch all the blurbs from the userId and set them as blurbs on mount
   useEffect(() => {
     const fetchBlurbs = async () => {
-      const { data: fetchedBlurbs, error } = await fetchBlurbsSA({ userId })
+      const { data: fetchedBlurbs, error } = await fetchBlurbsSA({})
       if (error || !fetchedBlurbs) {
         toast.error('Could not fetch blurbs \n ERROR: ' + error)
       } else {
