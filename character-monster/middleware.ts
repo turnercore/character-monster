@@ -1,12 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/utils/supabase/middleware'
 import { API_KEYS_TABLE } from './lib/constants'
-import { SupabaseClient } from '@supabase/supabase-js'
-import extractErrorMessage from './lib/tools/extractErrorMessage'
-import { APIKey } from './lib/schemas'
+import { getJwtFromToken } from './lib/tools/getJwtFromToken'
 
 const protectedRoutes = ['/testing', '/character', '/auth/account/profile']
-const apiKeysTable = API_KEYS_TABLE || 'api_keys' // Adjust as per your table name
 
 export const config = {
   matcher: [
@@ -24,30 +21,6 @@ function handleUnauthenticatedClient(request: NextRequest): NextResponse {
   const url = request.nextUrl.clone()
   url.pathname = '/account/login'
   return NextResponse.rewrite(url)
-}
-
-async function validateApiKey(
-  monsterToken: string,
-  supabaseClient: SupabaseClient
-) {
-  const { data, error } = await supabaseClient
-    .from(apiKeysTable)
-    .select('jwt')
-    .eq('id', monsterToken)
-    .single()
-
-  if (error) {
-    console.log('error', error)
-    throw new Error(
-      extractErrorMessage(error, 'Unknown error from validateApiKey.')
-    )
-  }
-
-  if (!data) {
-    return ''
-  } else {
-    return data.jwt
-  }
 }
 
 export async function middleware(req: NextRequest) {
@@ -70,7 +43,7 @@ export async function middleware(req: NextRequest) {
       // Reset user-allowed-session header to empty string to prevent spoofing
       req.headers.set('user-allowed-session', '')
       if (monsterToken) {
-        const jwt = await validateApiKey(monsterToken, supabase)
+        const jwt = await getJwtFromToken(monsterToken)
         if (jwt) {
           // Log the user's use of the jwt with timestamp, we don't need to await this
           supabase.rpc('log_api_use', {
