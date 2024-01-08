@@ -34,6 +34,8 @@ import {
   Textarea,
   AlertDialogTitle,
   AlertDialogDescription,
+  CardFooter,
+  Label,
 } from '@/components/ui'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import {
@@ -49,6 +51,7 @@ import { useRouter } from 'next/navigation'
 import { MdOutlinePlaylistAdd, MdPlaylistRemove } from 'react-icons/md'
 import { generateRandomUUID } from '@/lib/tools/generateRandomUUID'
 import { createCharacterSA } from '@/actions/characters/createCharacterSA'
+import { CharactersDropdown } from './CharactersDropdown'
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'What should we call them?' }),
@@ -162,7 +165,9 @@ export default function CharacterEditor({
     form.setValue('knowledge', values)
   }
 
-  console.log(characterData?.knowledge)
+  const redirectToCharacterPage = (characterId: string) => {
+    router.push(`/character/${characterId}`)
+  }
 
   return (
     <Card className="flex flex-col items-left mt-5 mx-5">
@@ -364,6 +369,15 @@ export default function CharacterEditor({
           </form>
         </Form>
       </CardContent>
+      <CardFooter>
+        <div className="flex flex-col space-y-4">
+          <Label>Change Character</Label>
+          <CharactersDropdown
+            selected={characterData?.id}
+            onSelect={redirectToCharacterPage}
+          />
+        </div>
+      </CardFooter>
     </Card>
   )
 }

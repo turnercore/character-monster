@@ -9,11 +9,9 @@ export async function setupSupabaseServerAction() {
   const cookieJar = cookies()
   const headersList = headers()
   const jwt = headersList.get('user-allowed-session')
-  console.log('jwt', jwt)
   const supabase = createClient(cookieJar)
   let userId = ''
   if (jwt) {
-    console.log('accessed with jwt')
     // Decode the jwt with fast-jwt
     const decode = createDecoder()
     const jwtData = decode(jwt)

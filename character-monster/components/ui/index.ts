@@ -224,8 +224,10 @@ import {
   TooltipContent,
   TooltipProvider,
 } from './tooltip'
+import { ModeToggle } from './mode-toggle'
 
 export {
+  ModeToggle,
   Accordion,
   AccordionItem,
   AccordionTrigger,

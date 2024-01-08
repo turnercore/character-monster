@@ -43,7 +43,7 @@ import {
 import { DialogClose } from '@radix-ui/react-dialog'
 import { Input } from '@/components/ui/input'
 import type { Blurb, UUID } from '@/lib/schemas'
-import { FormEvent, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { createBlurbSA } from '@/actions/blurbs/createBlurbSA'
 import { updateBlurbSA } from '@/actions/blurbs/updateBlurbSA'

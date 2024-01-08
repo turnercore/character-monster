@@ -1,6 +1,6 @@
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 import { GeistSans } from 'geist/font/sans'
-import { Providers } from '@/app/providers'
+import { Providers } from '@/providers/providers'
 import { Toaster } from '@/components/ui'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -32,28 +32,27 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/ckd1nmz.css" />
-        {/* Additional metadata and styles as needed */}
       </head>
-      <body
-        className={`${GeistSans.className} min-w-full bg-background text-foreground`}
-      >
+      <body className={`${GeistSans.className} min-w-full`}>
         <Providers>
-          <div className="flex flex-col w-full min-h-screen min-w-screen  bg-main-background-layered-waves-svg bg-cover dark:bg-main-background-layered-waves-dark-svg">
-            <Suspense
-              fallback={
-                <div className="relative bg-[#A6D3C9] dark:bg-opacity-20 bg-opacity-50 top-0 w-full flex justify-between items-center p-4 space-x-2"></div>
-              }
-            >
-              <Header />
-            </Suspense>
+          <div>
+            <div className="flex flex-col w-full min-h-screen min-w-screen  bg-main-background-layered-waves-svg bg-cover dark:bg-main-background-layered-waves-dark-svg">
+              <Suspense
+                fallback={
+                  <div className="relative bg-[#A6D3C9] dark:bg-opacity-20 bg-opacity-50 top-0 w-full flex justify-between items-center p-4 space-x-2"></div>
+                }
+              >
+                <Header />
+              </Suspense>
+              <Suspense>
+                <main className="w-full flex-1 mt-3">{children}</main>
+              </Suspense>
+            </div>
             <Suspense>
-              <main className="w-full flex-1 mt-3">{children}</main>
+              <Footer />
             </Suspense>
             <Toaster />
           </div>
-          <Suspense>
-            <Footer />
-          </Suspense>
         </Providers>
       </body>
     </html>

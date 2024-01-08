@@ -15,22 +15,47 @@ type ReturnData = {
 const inputSchema = z.array(UUIDSchema)
 
 export async function fetchCharactersSA(
-  characterIds: string[]
+  characterIds?: string[]
 ): Promise<ServerActionReturn<ReturnData>> {
   try {
-    const validatedIds = inputSchema.parse(characterIds)
     const { userId, supabase } = await setupSupabaseServerAction()
+    const characters: Character[] = []
 
-    let characters: Character[] = []
-    for (const id of validatedIds) {
+    if (characterIds) {
+      const validatedIds = inputSchema.parse(characterIds)
+
+      for (const id of validatedIds) {
+        const { data, error } = await supabase
+          .from(CHARACTERS_TABLE)
+          .select('*')
+          .eq('id', id)
+          .single()
+
+        if (data) {
+          characters.push(data)
+        }
+      }
+    } else {
+      // Get all characters the user is the owner of
       const { data, error } = await supabase
         .from(CHARACTERS_TABLE)
         .select('*')
-        .eq('id', id)
-        .single()
+        .eq('owner', userId)
 
-      if (data) {
-        characters.push(data)
+      if (data) characters.push(...data)
+      // Get all characters user is in the 'users' array of
+      const { data: sharedData, error: sharedError } = await supabase
+        .from(CHARACTERS_TABLE)
+        .select('*')
+        .contains('users', [userId])
+
+      // Add non-duplicate characters to the array
+      if (sharedData) {
+        for (const character of sharedData) {
+          if (!characters.find((c) => c.id === character.id)) {
+            characters.push(character)
+          }
+        }
       }
     }
 

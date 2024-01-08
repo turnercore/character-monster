@@ -30,8 +30,6 @@ export async function getNpcResponseSA(
 
     // Supabase Setup
     const { userId, supabase } = await setupSupabaseServerAction()
-    console.log('doing the thing')
-    console.log('userId', userId)
 
     const { data: ApiKeyData, error: APIKeyFetchError } = await supabase
       .from(THIRD_PARTY_KEYS_TABLE)

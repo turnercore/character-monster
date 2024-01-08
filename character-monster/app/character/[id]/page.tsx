@@ -1,7 +1,7 @@
 // Server Side Rendered Page
 import ServerToastMessage from '@/components/ServerToastMessage'
 import { CHARACTERS_TABLE, THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
-import { ThirdPartyAPIKeySchema, UUID } from '@/lib/schemas'
+import { UUID } from '@/lib/schemas'
 import extractErrorMessage from '@/lib/tools/extractErrorMessage'
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
@@ -93,7 +93,7 @@ const CharacterPage = async ({
 
   return (
     <div className="flex min-h-full pb-[250px]">
-      <div className="w-1/2">
+      <div className="flex flex-col space-y-4 w-1/2">
         <CharacterEditor
           varient="edit"
           characterData={characterData}
