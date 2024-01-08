@@ -6,6 +6,7 @@ import { cookies, headers } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { CHARACTERS_TABLE } from '@/lib/constants'
 import { UUID } from '@/lib/schemas'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 // Type definitions
 type ReturnData = {
@@ -22,24 +23,15 @@ export async function getCharacterIdSA(
     // Validate input
     const characterName = inputSchema.parse(character)
 
-    // Handle getting supabase setup
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
-
-    // Get user id from session
-    const user_id = (await supabase.auth.getSession()).data.session?.user.id
-    if (!user_id) throw new Error('User ID not found in session')
+    // Supabase Setup
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     // Find character Id that user has access to
     const { data: characterData, error: characterError } = await supabase
       .from(CHARACTERS_TABLE)
       .select('id')
       .eq('name', characterName)
-      .or(`owner.eq.${user_id},users.contains.${user_id}`)
+      .or(`owner.eq.${userId},users.contains.${userId}`)
 
     if (characterError || !characterData || characterData.length === 0)
       throw new Error(

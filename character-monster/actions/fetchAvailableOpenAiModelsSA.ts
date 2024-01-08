@@ -13,26 +13,6 @@ export async function getAvailableModelsSA(): Promise<
   ServerActionReturn<{ models: string[] }>
 > {
   try {
-    // Get OpenAI API key from database
-    // const cookieJar = cookies()
-    // const headersList = headers()
-    // const jwt = headersList.get('user-allowed-session')
-    // const supabase = jwt
-    //   ? createClient(cookieJar, jwt)
-    //   : createClient(cookieJar)
-    // const user_id = (await supabase.auth.getSession()).data.session?.user.id
-    // if (!user_id) throw new Error('User ID not found in session')
-
-    // const { data: apiKeyData, error: apiKeyFetchError } = await supabase
-    //   .from(THIRD_PARTY_KEYS_TABLE)
-    //   .select('*')
-    //   .match({ owner: user_id, type: 'open_ai' })
-
-    // if (apiKeyFetchError || !apiKeyData || apiKeyData.length === 0)
-    //   throw new Error('Failed to retrieve API key from Supabase')
-
-    // const apiKey = apiKeyData[0].api_key
-
     // Fetch available models
     const models = await openai.models.list()
 

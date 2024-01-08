@@ -9,6 +9,7 @@ import { cookies, headers } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { THIRD_PARTY_KEYS_TABLE } from '@/lib/constants'
 import { fetchBlurbsSA } from './blurbs/fetchBlurbsSA'
+import { setupSupabaseServerAction } from '@/lib/tools/server/setupSupabaseServerAction'
 
 const openai = new OpenAI()
 
@@ -29,22 +30,13 @@ export async function getNpcResponseSA(
     // Validate input
     const { characterId, message, model, system } = inputSchema.parse(input)
 
-    console.log('system', system)
-
-    // Get OpenAI API key from database
-    const cookieJar = cookies()
-    const headersList = headers()
-    const jwt = headersList.get('user-allowed-session')
-    const supabase = jwt
-      ? createClient(cookieJar, jwt)
-      : createClient(cookieJar)
-    const user_id = (await supabase.auth.getSession()).data.session?.user.id
-    if (!user_id) throw new Error('User ID not found in session')
+    // Supabase Setup
+    const { userId, supabase } = await setupSupabaseServerAction()
 
     const { data: ApiKeyData, error: APIKeyFetchError } = await supabase
       .from(THIRD_PARTY_KEYS_TABLE)
       .select('*')
-      .match({ owner: user_id, type: 'open_ai' })
+      .match({ owner: userId, type: 'open_ai' })
 
     if (APIKeyFetchError || !ApiKeyData || ApiKeyData.length === 0)
       throw new Error('Failed to retrieve API key from Supabase')
@@ -67,7 +59,7 @@ export async function getNpcResponseSA(
 
     // Construct the knowledgebase for the character from blurb ids
     const { data: blurbData, error: blurbError } = await fetchBlurbsSA({
-      userId: user_id,
+      userId,
       blurbIds: character.knowledge || [],
     })
 
